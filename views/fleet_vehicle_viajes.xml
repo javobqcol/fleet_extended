@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <record id="fleet_vehicle_viaje_view_form" model="ir.ui.view">
+      <field name="name">fleet.vehicle.viaje.view.form</field>
+      <field name="model">fleet.vehicle.viaje</field>
+      <field name="arch" type="xml">
+        <form string="Viajes">
+          <sheet>
+            <group col="2">
+              <group>
+                 <field name="vehicle_id"
+                       string="Vehiculo" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="driver_id"
+                       string="Conductor"/>
+                <field name="company_id"
+                       string="Compañia"
+                       groups="base.group_multi_company"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="work_id"
+                       string="Trabajo"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="material_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="unidad"/>
+                <field name="m3" digits="[10,2]" attrs="{'invisible': [('unidad', '=', 'ton')]}"/>
+                <label for="m3" string='Tara/Bruto/Neto' attrs="{'invisible': [('unidad', '!=', 'ton')]}" style="font-weight:bold;"/>
+                <div class="o_row" attrs="{'invisible': [('unidad', '!=', 'ton')]}">
+                  <field name="inicial" digits="[10,2]"/>
+                  <field name="final" digits="[10,2]" />
+                  <field name="m3" digits="[10,2]" />
+                </div>
+                <field name="cantera_id" placeholder="Sitio de carga" options="{'no_quick_create':True}"/>
+                <field name="destino_id" placeholder="Sitio de descarga" options="{'no_quick_create':True}"/>
+
+              </group>
+              <group>
+                <field name="date" string="Fecha"/>
+                <field name="recibo_interno" string="Recibo interno" placeholder="Número recibo interno"/>
+                <field name="recibo_cantera" string="Recibo cantera" placeholder="Número recibo cantera"/>
+                <field name="Km_inicial"/>
+                <field name="Km_final"/>
+                <field name="km_recorridos"/>
+                <field name="galones" digits="[10,2]"/>
+                <field name="viajes" />
+                <field name="total_cantidad" digits="[10,2]" groups="fleet.fleet_group_manager"/>
+                <field name="liq_id"
+                       string="liq Trabajo"
+                       groups="fleet.fleet_group_manager"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="liq_driver_id"
+                       string="Liq conductor."
+                       groups="fleet.fleet_group_manager"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+              </group>
+            </group>
+            <notebook>
+              <page string="Archivos Adjuntos">
+                <field name="documentos_ids" widget="many2many_binary"/>
+              </page>
+              <page string="Notas">
+                <field name="descripcion" nolabel="1" placeholder="Describa cualquier informacion adicional de la compra de combustible"/>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="fleet_vehicle_viaje_view_tree" model="ir.ui.view">
+      <field name="name">fleet.vehicle.viaje.tree</field>
+      <field name="model">fleet.vehicle.viaje</field>
+      <field name="arch" type="xml">
+        <tree string="Viajes"
+              decoration-success="liq_id != False"
+              decoration-primary ="liq_driver_id != False"
+              decoration-muted="(liq_id != False) and (liq_driver_id != False)">
+          <field name="date" string="Fecha"/>
+          <field name="vehicle_id" string="Vehiculo"/>
+          <field name="driver_id" string="Conductor" optional="show"/>
+          <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+          <field name="work_id" string="Trabajo" optional="show"/>
+          <field name="cantera_id" optional="show"/>
+          <field name="destino_id" optional="show"/>
+          <field name="recibo_cantera" string="Cantera" optional="show"/>
+          <field name="recibo_interno" string="Interno" optional="show"/>
+          <field name="material_id" string="Material" optional="show"/>
+          <field name="viajes" string="Viajes" sum="Total viajes" optional="show"/>
+          <field name="km_recorridos" string="KM" sum="Total KM" optional="hide"/>
+          <field name="inicial" string="Tara" digits="[10,2]" optional="hide"/>
+          <field name="final" string="Bruto" digits="[10,2]" optional="hide"/>
+          <field name="total_cantidad" string="Cant" digits="[10,2]" sum="Total cantidad" optional="show"/>
+          <field name="unidad" string="Unidad" optional="show"/>
+          <field name="galones" digits="[10,2]" optional="show"/>
+          <field name="tiene_adjunto" string="Adj?" optional="show"/>
+          <field name="liq_id" string="liq" optional="hide" groups="base.group_multi_company"/>
+          <field name="liq_driver_id" string="Liq cond." optional="hide" groups="base.group_multi_company"/>
+          <field name="descripcion" string="Nota" optional="hide"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="fleet_vehicle_viaje_view_search" model="ir.ui.view">
+     <field name="name">fleet.vehicle.viaje.view.search</field>
+     <field name="model">fleet.vehicle.viaje</field>
+     <field name="arch" type="xml">
+       <search string="Viajes diarios realizados por los automotores">
+         <field name="vehicle_id" string="Vehiculo"/>
+         <field name="date" string="Fecha" filter_domain="[('date', '=', self)]"/>
+         <field name="recibo_interno" string="Recibo interno"/>
+         <field name="recibo_cantera" string="Recibo cantera"/>
+         <field name="company_id" string="Compañia"/>
+         <field name="work_id" string="Trabajo"/>
+         <field name="driver_id" string="Conductor"/>
+         <field name="cantera_id" string="Origen"/>
+         <field name="destino_id" string="Destino"/>
+         <field name="material_id" string="Material trasportado"/>
+         <field name="liq_id" string="Liquidacion"/>
+         <filter name="Viajes sin cancelar"
+                 string="Viajes sin cancelar conductor"
+                 domain="[('liq_driver_id', '=', False)]"/>
+         <filter name="Viajes cancelados"
+                 string="Viajes cancelados conductor"
+                 domain="[('liq_driver_id', '!=', False)]"/>
+         <separator/>
+         <filter name="Viajes sin facturar"
+                 string="Viajes sin facturar empresa"
+                 domain="[('liq_id', '=', False)]"/>
+         <filter name="Viajes facturados"
+                 string="Viajes facturados empresa"
+                 domain="[('liq_id', '!=', False)]"/>
+         <group expand="1" string="Agrupado por">
+           <filter name="groupby_date"
+                   string="Fecha"
+                   context="{'group_by': 'date:day'}" />
+           <filter name="groupby_company_id"
+                   context="{'group_by': 'company_id'}"
+                   string="Compañia"
+                   groups="base.group_multi_company"/>
+           <filter name="groupby_driver_id"
+                   context="{'group_by': 'driver_id'}"
+                   string="Conductor"/>
+           <filter name="groupby_vehicle_id"
+                   context="{'group_by': 'vehicle_id'}"
+                   string="Vehiculo"/>
+           <filter name="groupby_work_id"
+                   context="{'group_by': 'work_id'}"
+                   string="Trabajo"/>
+           <filter name="groupby_material_id"
+                   context="{'group_by': 'material_id'}"
+                   string="Material"/>
+           <filter name="groupby_unidad"
+                   context="{'group_by': 'unidad'}"
+                   string="Unidad"/>
+         </group>
+       </search>
+     </field>
+    </record>
+
+    <record id='fleet_vehicle_viaje_view_pivot' model='ir.ui.view'>
+      <field name="name">fleet.vehicle.viaje.pivot</field>
+      <field name="model">fleet.vehicle.viaje</field>
+        <field name="arch" type="xml">
+          <pivot string="Viajes de los vehiculos" >
+            <field name="work_id" type="row"/>
+            <field name="material_id" type="row"/>
+            <field name="vehicle_id" type="row"/>
+            <field name="date" interval="day" type="col"/>
+            <field name="viajes" string="Viajes" type="measure"/>
+          </pivot>
+        </field>
+      </record>
+
+
+    <record id='fleet_vehicle_viajes_action' model='ir.actions.act_window'>
+      <field name="name">Registro de viajes de los vehiculos</field>
+      <field name="res_model">fleet.vehicle.viaje</field>
+      <field name="view_mode">tree,form,pivot</field>
+      <field name="search_view_id" ref="fleet_vehicle_viaje_view_search"/>
+      <field name="context"></field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Ingrese un nuevo viaje de vehiculo
+        </p><p>
+          Rastree todos los viajes realizados por los vehiculos.
+        </p>
+      </field>
+    </record>
+    <menuitem action="fleet_vehicle_viajes_action" parent="fleet.fleet_vehicles" id="fleet_vehicle_viaje_menu"/>
+
+
+  </data>
+</odoo>
+

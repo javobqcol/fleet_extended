@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <record id='fleet.fleet_vehicle_odometer_view_form' model='ir.ui.view'>
+      <field name="name">fleet.vehicle.odometer.form</field>
+      <field name="model">fleet.vehicle.odometer</field>
+      <field name="arch" type="xml">
+        <form string="Registro de Odometros de vehiculos">
+          <sheet>
+            <group col="2">
+              <group>
+<!--                <field name="able_to_modify_odometer" invisible="1" />-->
+                <field name="vehicle_id" string="Vehiculo"/>
+                <field name="driver_id" string="Conductor"/>
+                <field name="company_id"
+                       string="Compañia"
+                       groups="base.group_multi_company"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="work_id" string="Trabajo"/>
+                <field name="recibo"/>
+              </group>
+              <group>
+                <field name="date" string="Fecha"/>
+<!--                <field name="value" string="Odometro Inicial"-->
+<!--                       class="oe_inline"-->
+<!--                       attrs="{'readonly':[('able_to_modify_odometer','=',False)]}"-->
+<!--                       force_save="1"/>-->
+                <field name="value" string="Odometro Inicial" class="oe_inline" />
+                <field name="value_final" string="Odometro Final" class="oe_inline"/>
+                <label for="total_unidades"/>
+                <div class="o_row">
+                  <field name="total_unidades" string="Diferencia" class="oe_inline"/>
+                  <field name="unit" class="oe_inline"/>
+                </div>
+
+                <field name="gal" string="Galones" class="oe_inline"/>
+                <label for="es_standby"/>
+                <div class="o_row">
+                  <field name="es_standby"/>
+                  <field name="motivo" attrs="{'invisible': [('es_standby', '=', False)]}"/>
+                </div>
+                <field name="total_standby"
+                       string="Horas standby"
+                       attrs="{'invisible': [('es_standby', '=', False)]}"/>
+                 <field name="liq_id"
+                       string="liq Trabajo"
+                       groups="fleet.fleet_group_manager"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+                <field name="liq_driver_id"
+                       string="Liq conductor."
+                       groups="fleet.fleet_group_manager"
+                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>              </group>
+            </group>
+            <notebook>
+              <page string="Notas">
+                <field name="descripcion" nolabel="1" placeholder="Describa cualquier informacion adicional de la compra de combustible"/>
+              </page>
+              <page string="Archivos Adjuntos">
+                <field name="documentos_ids" widget="many2many_binary"/>
+              </page>
+            </notebook>
+
+          </sheet>
+       </form>
+     </field>
+    </record>
+
+    <record id='fleet.fleet_vehicle_odometer_view_tree' model='ir.ui.view'>
+      <field name="name">fleet.vehicle.odometer.tree</field>
+      <field name="model">fleet.vehicle.odometer</field>
+      <field name="arch" type="xml">
+        <tree string="Registro de odometro"
+              decoration-success="liq_id != False"
+              decoration-primary ="liq_driver_id != False"
+              decoration-muted="(liq_id != False) and (liq_driver_id != False)"
+              decoration-info="tipo_odometro == 'fuel'"
+              decoration-warning="total_unidades != total_standby"
+              decoration-danger="tipo_odometro == 'services'">
+          <field name="date" string="fecha"/>
+          <field name="vehicle_id" optional="show" string="Vehiculo"/>
+          <field name="company_id"  optional="hide" string="Compañia" groups="base.group_multi_company"/>
+          <field name="driver_id"  optional="show" string="Conductor"/>
+          <field name="tipo_odometro" optional="show" string="Tipo"/>
+          <field name="work_id" optional="show" string="Trabajo"/>
+          <field name="recibo" optional="show" string="Recibo"/>
+          <field name="value" string="Od. Inicial" class="oe_inline"/>
+          <field name="value_final" string="Od. Final" class="oe_inline"/>
+          <field name="total_unidades" sum="suma Unidades" string="Dif." class="oe_inline"/>
+          <field name="total_standby" sum="suma standby" string="H + Sb" optional="hide" class="oe_inline"/>
+          <field name="unit" class="oe_inline"/>
+          <field name="gal" optional="show" sum="Suma galones"/>
+          <field name="es_standby" invisible="1"/>
+          <field name="tiene_adjunto" string="Adj?" optional="show"/>
+          <field name="liq_id" string="liq" optional="hide" groups="base.group_multi_company"/>
+          <field name="liq_driver_id" string="Liq cond." optional="hide" groups="base.group_multi_company"/>
+          <field name="descripcion" string="Nota" optional="hide"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id='fleet.fleet_vehicle_odometer_view_kanban' model='ir.ui.view'>
+      <field name="name">fleet.vehicle.odometer.kanban</field>
+      <field name="model">fleet.vehicle.odometer</field>
+      <field name="arch" type="xml">
+        <kanban class="o_kanban_mobile">
+          <templates>
+            <t t-name="kanban-box">
+              <div t-attf-class="oe_kanban_global_click">
+                <div>
+                  <strong>
+                    <field name="vehicle_id" string="Vehiculo"/>
+                    <span class="float-right"><field name="date"/></span>
+                  </strong>
+                </div>
+                <div>
+                  <span><field name="driver_id"/></span>
+                  <span class="float-right"><field name="work_id"/></span>
+                </div>
+                <div>
+                  <span class="float-right"><field name="value"/></span>
+                  <span class="float-left"><field name="value_final"/></span>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+
+    <record id='fleet.fleet_vehicle_odometer_view_search' model='ir.ui.view'>
+      <field name="name">fleet.vehicle.odometer.search</field>
+      <field name="model">fleet.vehicle.odometer</field>
+      <field name="arch" type="xml">
+        <search string="Odometros de los vehiculos" >
+          <field name="vehicle_id" string="Vehiculo"/>
+          <field name="date" string="Fecha"/>
+          <field name="recibo" string="Recibo"/>
+          <field name="driver_id" string="Conductor"/>
+          <field name="work_id" string="Trabajo"/>
+          <field name="value" string="Odometro"/>
+          <field name="liq_id" string="Liquidacion trabajo"/>
+          <field name="liq_driver_id" string="Liquidacion conductor"/>
+
+          <filter name="Horas sin cancelar"
+                  string="Horas sin cancelar operador"
+                  domain="[('liq_driver_id', '=', False)]"/>
+          <filter name="Horas canceladas"
+                  string="Horas canceladas operador"
+                  domain="[('liq_driver_id', '!=', False)]"/>
+          <separator/>
+          <filter name="Horas sin facturar"
+                  string="Horas sin facturar empresa"
+                  domain="[('liq_id', '=', False)]"/>
+          <filter name="Horas facturadas"
+                  string="Horas facturardas empresa"
+                  domain="[('liq_id', '!=', False)]"/>
+          <separator/>
+          <filter name="odometro"
+                 string="Odometro"
+                 domain="[('tipo_odometro', '=', 'odometer')]"/>
+
+          <group expand="1" string="Agrupado por">
+            <filter name="groupby_date"
+                    string="Fecha"
+                    context="{'group_by': 'date:day'}" />
+            <filter name="groupby_company_id"
+                    context="{'group_by': 'company_id'}"
+                    string="Compañia" groups="base.group_multi_company"/>
+            <filter name="groupby_driver_id"
+                    context="{'group_by': 'driver_id'}"
+                    string="Conductor"/>
+            <filter name="groupby_vehicle_id"
+                    context="{'group_by': 'vehicle_id'}"
+                    string="Vehiculo"/>
+            <filter name="groupby_date"
+                    context="{'group_by':'date:month'}"
+                    string="Fecha"/>
+            <filter name="groupby_work" context="{'group_by': 'work_id'}" string="Trabajo"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record id='fleet_vehicle_odometer_view_pivot' model='ir.ui.view'>
+      <field name="name">fleet.vehicle.odometer.pivot</field>
+      <field name="model">fleet.vehicle.odometer</field>
+      <field name="arch" type="xml">
+        <pivot string="Odometro de maquinaria" >
+          <field name="work_id" type="row"/>
+          <field name="vehicle_id" type="row"/>
+          <field name="date" interval="day" type="col"/>
+          <field name="total_unidades" string="Horas" type="measure"/>
+          <field name="total_standby" string="Horas + Sb" type="measure"/>
+        </pivot>
+      </field>
+    </record>
+
+
+    <record id="fleet.fleet_vehicle_odometer_view_graph" model="ir.ui.view">
+     <field name="name">fleet.vehicle.odometer.graph</field>
+     <field name="model">fleet.vehicle.odometer</field>
+     <field name="arch" type="xml">
+        <graph string="Odometer Values Per Vehicle">
+          <field name="vehicle_id" string="Vehiculo" type="row"/>
+          <field name="total_unidades" string="horas" type="measure"/>
+        </graph>
+      </field>
+    </record>
+
+    <record id='fleet.fleet_vehicle_odometer_action' model='ir.actions.act_window'>
+      <field name="name">Odometros de los Vehiculos</field>
+      <field name="res_model">fleet.vehicle.odometer</field>
+      <field name="view_mode">tree,form,kanban,graph,pivot</field>
+      <field name="search_view_id" ref="fleet.fleet_vehicle_odometer_view_search"/>
+<!--      <field name="context">{-->
+<!--        "search_default_groupby_driver_id":True,-->
+<!--        "search_default_groupby_vehicle_id":True,-->
+<!--        "search_default_odometro":True}-->
+<!--      </field>-->
+      <field name="context"></field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Cree unanueva entrada de odometro
+        </p><p>
+          Usted puede adicionar varias entradas para todos los vehiculos.
+        </p>
+      </field>
+    </record>
+  </data>
+</odoo>
